@@ -1,0 +1,38 @@
+# --- .NET / Azure Functions ---
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+
+# Local Functions settings (secrets, connection strings)
+local.settings.json
+
+# Azure Functions build/runtime artifacts
+.azurefunctions/
+local.settings.json.bak
+
+# --- Node / SPFx ---
+node_modules/
+lib/
+dist/
+temp/
+release/
+solution/
+*.scss.ts
+.heft/
+*.log
+npm-debug.log*
+yarn-error.log
+
+# SPFx generated
+spfx-sample/**/lib/
+spfx-sample/**/dist/
+spfx-sample/**/temp/
+spfx-sample/**/solution/
+spfx-sample/**/.heft/
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db

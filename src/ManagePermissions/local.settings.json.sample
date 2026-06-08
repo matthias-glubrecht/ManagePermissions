@@ -1,0 +1,18 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+
+        "AzureAd__TenantId": "<Verzeichnis-(Mandanten-)ID>",
+        "AzureAd__ClientId": "<Client-ID der API-App-Registrierung dieser Function>",
+        "AzureAd__RequiredScope": "access_as_user",
+        "AzureAd__AllowedGroupId": "<Objekt-ID der berechtigten Sicherheitsgruppe>",
+
+        "SharePoint__AllowedHosts": "<tenant>.sharepoint.com"
+    },
+    "Host": {
+        "CORS": "https://<tenant>.sharepoint.com",
+        "CORSCredentials": false
+    }
+}

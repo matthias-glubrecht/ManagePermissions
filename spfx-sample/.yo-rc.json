@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "manage-permissions-sample",
+    "skipFeatureDeployment": true,
+    "componentType": "webpart",
+    "template": "none",
+    "componentName": "ManagePermissions",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.17.0",
+    "sdksVersions": {},
+    "version": "1.21.1",
+    "libraryName": "manage-permissions-sample",
+    "libraryId": "ca829693-f03d-490a-903f-29ab8bf6a19e",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionShortDescription": "manage-permissions-sample description",
+    "isDomainIsolated": false
+  }
+}

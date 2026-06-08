@@ -1,0 +1,72 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.managePermissions {
+  padding: 1em;
+  max-width: 520px;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+}
+
+.title {
+  margin: 0 0 0.75em 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.6em;
+}
+
+.label {
+  margin-bottom: 0.2em;
+  font-size: 14px;
+}
+
+.control {
+  padding: 6px 8px;
+  border: 1px solid #c8c6c4;
+  border-radius: 2px;
+  font: inherit;
+}
+
+.button {
+  margin-top: 0.4em;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 2px;
+  background-color: "[theme:themePrimary, default:#0078d4]";
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.status {
+  margin-top: 0.8em;
+  padding: 8px 10px;
+  border-radius: 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.statusInfo {
+  background-color: #f3f2f1;
+}
+
+.statusSuccess {
+  background-color: #dff6dd;
+}
+
+.statusError {
+  background-color: #fde7e9;
+}
+
+.hidden {
+  display: none;
+}

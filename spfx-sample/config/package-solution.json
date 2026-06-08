@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "manage-permissions-sample-client-side-solution",
+    "id": "ca829693-f03d-490a-903f-29ab8bf6a19e",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "manage-permissions-sample description"
+      },
+      "longDescription": {
+        "default": "manage-permissions-sample description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "webApiPermissionRequests": [
+      {
+        "resource": "ManagePermissions API",
+        "scope": "access_as_user"
+      }
+    ],
+    "features": [
+      {
+        "title": "manage-permissions-sample Feature",
+        "description": "The feature that activates elements of the manage-permissions-sample solution.",
+        "id": "01c5b500-d0cf-45de-a27c-c8f571fa089a",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/manage-permissions-sample.sppkg"
+  }
+}
