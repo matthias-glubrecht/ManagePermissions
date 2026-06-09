@@ -3,6 +3,9 @@
 Schritt-für-Schritt-Anleitung, um die Function `ManagePermissions` einzurichten,
 abzusichern und aus einem SPFx-Web-Part aufzurufen.
 
+> **Voraussetzungen** (zu installierende Werkzeuge & benötigte Rollen): siehe
+> [README → Voraussetzungen](../README.md#voraussetzungen).
+
 Reihenfolge:
 
 1. [Entra-App-Registrierung (API)](#1-entra-app-registrierung-api)

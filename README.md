@@ -123,6 +123,38 @@ ManagePermissions/
 └─ README.md
 ```
 
+## Voraussetzungen
+
+Zum Klonen, Bauen und Deployen der Function werden folgende Werkzeuge benötigt:
+
+| Werkzeug | Version | Zweck |
+|---|---|---|
+| Git | – | Repository klonen |
+| .NET SDK | 8.0 | C#-Function bauen (`dotnet-isolated`) |
+| Azure Functions Core Tools | 4.x | Deployment via `func azure functionapp publish` |
+| Azure CLI | 2.60+ | `deploy.ps1` + Anmeldung (`az login`) |
+| PowerShell | 7.4+ | Infra-Skripte (`deploy.ps1`, `grant-sites-selected.ps1`) |
+| `Microsoft.Graph` PS-Module | 2.x | MI-Berechtigung in `grant-sites-selected.ps1` |
+| Azurite | – | Storage-Emulator (nur für lokales `func start`) |
+
+```powershell
+# Windows-Installation (einmalig)
+winget install --id Microsoft.DotNet.SDK.8 -e
+winget install --id Microsoft.AzureCLI -e
+winget install --id Microsoft.Azure.FunctionsCoreTools -e
+Install-Module Microsoft.Graph -Scope CurrentUser
+npm install -g azurite     # nur für lokale Entwicklung
+```
+
+**Konten & Rollen:**
+
+- **Azure-Subscription** mit Contributor-Rechten (Ressourcen + Function App anlegen)
+- **Entra-Tenant-Admin** – einmalig für den Admin-Consent von `Sites.Selected`
+- **SharePoint-App-Katalog-Admin** – API-Berechtigung des Web-Parts freigeben
+
+> Das **SPFx-Web-Part** (`spfx-sample/`) hat eigene Voraussetzungen (Node.js 22.17.0,
+> `gulp-cli`, `yo`, SPFx-Generator) – siehe [spfx-sample/README.md](spfx-sample/README.md#voraussetzungen).
+
 ## Schnellstart
 
 1. **Entra-App + Sicherheitsgruppe** anlegen → [docs/setup.md](docs/setup.md) Schritte 1–2.
