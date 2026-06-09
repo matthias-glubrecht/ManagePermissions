@@ -1,0 +1,15 @@
+# Einheitliche Zeilenenden – unabhängig von core.autocrlf des jeweiligen Rechners.
+# Textdateien werden im Repo UND im Arbeitsverzeichnis als LF gehalten.
+* text=auto eol=lf
+
+# Binärdateien niemals konvertieren.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.pptx binary
+*.xlsx binary
+*.zip  binary
