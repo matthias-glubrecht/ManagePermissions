@@ -11,7 +11,9 @@ Das Token wird über `AadHttpClient` / `AadHttpClientFactory` bezogen.
 
 ## Voraussetzungen
 
-- Node.js **22.17.0** (LTS), npm 10.x
+- Node.js **22.17.0** (LTS), npm 10.x – die Version ist in [`.nvmrc`](.nvmrc) hinterlegt;
+  mit [nvm](https://github.com/nvm-sh/nvm) bzw. [nvm-windows](https://github.com/coreybutler/nvm-windows)
+  genügt `nvm use` im Projektordner.
 - Globale Tools: `yo`, `gulp-cli`, `@microsoft/generator-sharepoint@1.21.1`
 - Eine bereitgestellte **ManagePermissions**-Azure-Function (HTTP-Endpunkt `POST /api/ManagePermissions`)
 - Eine Entra-ID-App-Registrierung für die API mit:
@@ -19,6 +21,10 @@ Das Token wird über `AadHttpClient` / `AadHttpClientFactory` bezogen.
   - exponiertem delegiertem Scope **`access_as_user`**
   - einem Anwendungs-ID-URI (z. B. `api://<client-id>`)
 - Ein SharePoint-Online-Tenant mit App-Katalog und ein Konto mit Administratorrechten zum Freigeben der API-Berechtigung
+
+> Es wird **kein Python** und keine native Build-Toolchain (node-gyp) benötigt: Das Projekt
+> nutzt Dart Sass (reines JavaScript), das einzige native Modul `canvas` ist nur ein optionaler
+> Test-Peer und wird beim Build übersprungen.
 
 ## Funktionsweise
 
