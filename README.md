@@ -44,9 +44,16 @@ Details und Sequenzdiagramm: [docs/architektur.md](docs/architektur.md).
   "listId": "00000000-0000-0000-0000-000000000000",
   "itemId": 42,
   "userPrincipalName": "user@domain.com",
-  "permissionLevel": "Contribute"
+  "permissionLevel": "Contribute",
+  "copyExistingPermissions": true
 }
 ```
+
+Das optionale Feld `copyExistingPermissions` (Default `true`) steuert, ob beim erstmaligen
+Trennen der Vererbung die bisher geerbten Zuweisungen übernommen werden. Mit `false` startet
+das Element exklusiv – nur der vergebene Benutzer (zzgl. Websitesammlungs-Administratoren)
+erhält Zugriff. Das Flag wirkt nur, solange das Element noch erbt; hat es bereits eindeutige
+Berechtigungen, wird es ignoriert.
 
 **Vererbung wiederherstellen (`reset`):**
 

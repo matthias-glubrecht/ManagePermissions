@@ -25,4 +25,12 @@ public sealed class ManagePermissionsRequest
     /// Erlaubt: <c>Read</c>, <c>Contribute</c>, <c>Edit</c>, <c>Design</c>, <c>FullControl</c>.
     /// </summary>
     public string? PermissionLevel { get; set; }
+
+    /// <summary>
+    /// Nur für <c>grant</c>: Steuert, ob beim erstmaligen Trennen der Vererbung die bislang
+    /// geerbten Zuweisungen übernommen werden. <c>true</c> (Default) erhält bestehende Zugriffe;
+    /// <c>false</c> startet mit leeren Berechtigungen – nur der vergebene Benutzer erhält Zugriff
+    /// (zzgl. Websitesammlungs-Administratoren).
+    /// </summary>
+    public bool? CopyExistingPermissions { get; set; }
 }

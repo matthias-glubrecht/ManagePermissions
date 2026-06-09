@@ -13,6 +13,9 @@ local.settings.json
 .azurefunctions/
 local.settings.json.bak
 
+# Deploy-Output (umgebungsspezifische IDs – nicht einchecken)
+infra/.deployment-output.json
+
 # --- Node / SPFx ---
 node_modules/
 lib/

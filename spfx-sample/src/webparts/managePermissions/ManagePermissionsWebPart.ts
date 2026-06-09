@@ -16,6 +16,14 @@ export interface IManagePermissionsWebPartProps {
 
 const PERMISSION_LEVELS: string[] = ['Read', 'Contribute', 'Edit', 'Design', 'FullControl'];
 
+// Felder, deren Inhalt nach jeder Eingabe im localStorage gespeichert und beim
+// nächsten Laden wiederhergestellt wird (erspart wiederholtes Eintippen).
+const PERSIST_FIELDS: ReadonlyArray<{ id: string; key: string }> = [
+  { id: 'mp-webUrl', key: 'ManagePermissions.webUrl' },
+  { id: 'mp-listId', key: 'ManagePermissions.listId' },
+  { id: 'mp-upn', key: 'ManagePermissions.upn' }
+];
+
 export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IManagePermissionsWebPartProps> {
 
   public render(): void {
@@ -60,12 +68,20 @@ export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IMan
         <select id="mp-level" class="${styles.control}">${levelOptions}</select>
       </div>
 
+      <div class="${styles.field}" id="mp-row-copy">
+        <label class="${styles.label}">
+          <input id="mp-copyExisting" type="checkbox" checked />
+          Geerbte Berechtigungen übernehmen
+        </label>
+      </div>
+
       <button id="mp-submit" class="${styles.button}" type="button">Ausführen</button>
 
       <div id="mp-status" class="${styles.status} ${styles.hidden}" role="status" aria-live="polite"></div>
     </section>`;
 
     this._bindEvents();
+    this._restorePersistedFields();
     this._toggleGrantFields();
   }
 
@@ -88,14 +104,40 @@ export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IMan
     }
   }
 
+  // Stellt gespeicherte Feldinhalte wieder her und speichert sie bei jeder Eingabe.
+  // localStorage kann im privaten Browser-Modus eine Exception werfen → defensiv kapseln.
+  private _restorePersistedFields(): void {
+    for (const field of PERSIST_FIELDS) {
+      const input: HTMLInputElement | null = this.domElement.querySelector(`#${field.id}`);
+      if (!input) { continue; }
+
+      try {
+        const saved: string | null = window.localStorage.getItem(field.key);
+        if (saved !== null) { input.value = saved; }
+      } catch {
+        /* localStorage nicht verfügbar – Wiederherstellung überspringen */
+      }
+
+      input.addEventListener('input', () => {
+        try {
+          window.localStorage.setItem(field.key, input.value);
+        } catch {
+          /* localStorage nicht verfügbar – Speichern überspringen */
+        }
+      });
+    }
+  }
+
   private _toggleGrantFields(): void {
     const actionEl: HTMLSelectElement | null = this.domElement.querySelector('#mp-action');
     const isGrant: boolean = (actionEl ? actionEl.value : 'grant') === 'grant';
     const rowUpn: HTMLElement | null = this.domElement.querySelector('#mp-row-upn');
     const rowLevel: HTMLElement | null = this.domElement.querySelector('#mp-row-level');
+    const rowCopy: HTMLElement | null = this.domElement.querySelector('#mp-row-copy');
 
     if (rowUpn) { rowUpn.classList.toggle(styles.hidden, !isGrant); }
     if (rowLevel) { rowLevel.classList.toggle(styles.hidden, !isGrant); }
+    if (rowCopy) { rowCopy.classList.toggle(styles.hidden, !isGrant); }
   }
 
   private async _onSubmit(): Promise<void> {
@@ -125,11 +167,13 @@ export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IMan
     if (action === 'grant') {
       const userPrincipalName: string = (this.domElement.querySelector('#mp-upn') as HTMLInputElement).value.trim();
       const permissionLevel: string = (this.domElement.querySelector('#mp-level') as HTMLSelectElement).value;
+      const copyExistingEl = this.domElement.querySelector('#mp-copyExisting') as HTMLInputElement | null;
+      const copyExistingPermissions: boolean = copyExistingEl ? copyExistingEl.checked : true;
       if (!userPrincipalName) {
         this._setStatus(statusEl, 'error', 'Für die Aktion „grant“ ist ein Benutzer (UPN) erforderlich.');
         return;
       }
-      payload = { action, webUrl, listId, itemId, userPrincipalName, permissionLevel };
+      payload = { action, webUrl, listId, itemId, userPrincipalName, permissionLevel, copyExistingPermissions };
     } else {
       payload = { action, webUrl, listId, itemId };
     }

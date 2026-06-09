@@ -49,7 +49,7 @@ sequenceDiagram
         FN->>SP: EnsureUser(upn) → PrincipalId
         FN->>SP: Item laden (HasUniqueRoleAssignments)
         opt erbt noch
-            FN->>SP: BreakRoleInheritance(copy=true)
+            FN->>SP: BreakRoleInheritance(copy=copyExisting)
         end
         FN->>SP: AddRoleDefinition(principalId, RoleType)
         SP-->>FN: OK
@@ -75,10 +75,13 @@ sequenceDiagram
 SharePoint vererbt Berechtigungen standardmäßig von der Liste an die Elemente. Um ein
 **einzelnes Element** abweichend zu berechtigen, muss die Vererbung getrennt werden:
 
-- **grant:** Falls das Element noch erbt → `BreakRoleInheritance(copyRoleAssignments: true,
-  clearSubscopes: false)`. `copy=true` übernimmt die bestehenden Zuweisungen, damit
-  vorhandene Zugriffe erhalten bleiben; anschließend wird die gewünschte Rolle für den
-  Benutzer ergänzt.
+- **grant:** Falls das Element noch erbt → `BreakRoleInheritance(copyRoleAssignments: …,
+  clearSubscopes: false)`. Standardmäßig (`copyExistingPermissions: true`) werden die bisher
+  geerbten Zuweisungen übernommen, damit vorhandene Zugriffe erhalten bleiben; mit
+  `copyExistingPermissions: false` startet das Element exklusiv – nur der vergebene Benutzer
+  (zzgl. Websitesammlungs-Administratoren) erhält Zugriff. Anschließend wird die gewünschte
+  Rolle für den Benutzer ergänzt. Hinweis: Das Flag wirkt nur im Moment des Trennens – hat das
+  Element bereits eindeutige Berechtigungen, wird der Break übersprungen und das Flag ignoriert.
 - **reset:** Falls das Element eindeutige Berechtigungen hat → `ResetRoleInheritance()`.
   Danach erbt es wieder von der Liste.
 

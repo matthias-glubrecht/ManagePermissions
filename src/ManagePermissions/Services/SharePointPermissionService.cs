@@ -95,11 +95,13 @@ public sealed class SharePointPermissionService : ISharePointPermissionService
                 return lookupError!;
             }
 
-            // Eindeutige Berechtigungen sicherstellen: Vererbung trennen und bestehende
-            // Zuweisungen übernehmen, damit vorhandene Zugriffe erhalten bleiben.
+            // Eindeutige Berechtigungen sicherstellen: Vererbung trennen. Per Default werden
+            // bestehende Zuweisungen übernommen; bei CopyExistingPermissions=false startet das
+            // Element mit leeren Berechtigungen, sodass nur der vergebene Benutzer Zugriff hat.
             if (!item.HasUniqueRoleAssignments)
             {
-                await item.BreakRoleInheritanceAsync(copyRoleAssignments: true, clearSubscopes: false);
+                var copyExisting = request.CopyExistingPermissions ?? true;
+                await item.BreakRoleInheritanceAsync(copyRoleAssignments: copyExisting, clearSubscopes: false);
             }
 
             await item.AddRoleDefinitionAsync(user.Id, roleDefinition);

@@ -40,18 +40,71 @@ Diese App-Registrierung repräsentiert die Function als geschützte API.
    - **Add a scope**:
      - Scope name: `access_as_user`
      - Who can consent: **Admins and users**
-     - Consent-Anzeigetexte ausfüllen, State **Enabled**.
+     - State: **Enabled**
+     - Consent-Anzeigetexte (zum Kopieren):
 
-3. **Token-Version auf 2 setzen** (damit SPFx v2-Tokens erhält):
-   - **Manifest** öffnen → `requestedAccessTokenVersion` auf `2` setzen → speichern.
+       | Feld | Wert |
+       |---|---|
+       | Admin consent display name | ManagePermissions im Namen des Benutzers aufrufen |
+       | Admin consent description | Ermöglicht der Anwendung, die ManagePermissions-API im Namen des angemeldeten Benutzers aufzurufen, um Berechtigungen auf SharePoint-Listenelementen zu verwalten. |
+       | User consent display name | ManagePermissions in Ihrem Namen aufrufen |
+       | User consent description | Ermöglicht der Anwendung, die ManagePermissions-API in Ihrem Namen aufzurufen, um Berechtigungen auf SharePoint-Listenelementen zu verwalten. |
+
+3. **Token-Version auf 2 setzen** (damit die Function die Tokens akzeptiert):
+
+   Die Function validiert eingehende Tokens gegen den **v2.0**-Issuer
+   (`https://login.microsoftonline.com/<tenant>/v2.0`). Eine `api://`-App stellt aber
+   standardmäßig **v1.0**-Tokens aus (Issuer `https://sts.windows.net/<tenant>/`). Ohne
+   diese Umstellung passt der Issuer nicht und jeder Aufruf scheitert mit **401**.
+
+   - In der App-Registrierung links **Manage → Manifest** öffnen.
+   - Das Feld `requestedAccessTokenVersion` von `null` auf `2` setzen. Je nach Editor-Format
+     liegt es an unterschiedlicher Stelle:
+     - **Microsoft Graph App Manifest** (neuer Editor): verschachtelt unter
+       `"api": { "requestedAccessTokenVersion": 2 }`.
+     - **AAD Graph App Manifest** (älteres/„deprecated"-Format): als Top-Level-Feld
+       `"requestedAccessTokenVersion": 2`.
+   - **Save** klicken.
+
+   > Kontrolle: Im ausgestellten Token (z. B. über <https://jwt.ms> sichtbar gemacht) muss
+   > der Claim `ver` den Wert `2.0` haben.
+
+   > Nachlesen:
+   > - [v1.0- vs. v2.0-Tokens und Issuer-Validierung](https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens#v10-and-v20-tokens)
+   >   – warum der Issuer je nach Token-Version unterschiedlich ist.
+   > - [`requestedAccessTokenVersion` im App-Manifest](https://learn.microsoft.com/en-us/entra/identity-platform/reference-app-manifest#requestedaccesstokenversion-attribute)
+   >   – die zulässigen Werte (`null`/`1` = v1.0, `2` = v2.0).
 
 4. **Gruppen-Claim aktivieren** (für die Autorisierung):
-   - **Token configuration → Add groups claim**
-   - **Groups assigned to the application** auswählen (vermeidet „Group-Overage").
-   - Für **Access**-Tokens aktivieren → speichern.
 
-> Hinweis: „Groups assigned to the application" sorgt dafür, dass nur Gruppen im Token
-> erscheinen, die der zugehörigen Enterprise-App zugewiesen sind (Schritt 2 unten).
+   Ein Entra-Token enthält **standardmäßig nicht**, in welchen Gruppen der Benutzer ist.
+   Die Function trägt ihre Zugangsentscheidung aber genau über diesen `groups`-Claim aus
+   (Vergleich gegen `AzureAd__AllowedGroupId`). Ohne aktivierten Claim fehlt `groups` im
+   Token → die Prüfung scheitert für **jeden** mit **403**.
+
+   - In der App-Registrierung links **Manage → Token configuration** öffnen.
+   - **+ Add groups claim** wählen.
+   - **Groups assigned to the application** ankreuzen (vermeidet „Group-Overage", s. u.).
+   - Token-Typ **Access** aktivieren (ID/SAML sind für diese API irrelevant) → **Save**.
+
+   > **Warum „Groups assigned to the application"?** Bei **All groups** packt Entra *alle*
+   > Gruppen des Benutzers ins Token. Ist er in zu vielen Mitglied (> 200 im JWT), lässt
+   > Entra die Liste weg und setzt nur einen Verweis (`_claim_names`) – „Group-Overage", der
+   > `groups`-Claim fehlt dann. „Groups assigned to the application" nimmt nur die der
+   > Enterprise-App **zugewiesenen** Gruppen (Schritt 2.2) auf – Overage tritt praktisch nie auf.
+   >
+   > **Voraussetzungen/Fallen:** Diese Option berücksichtigt nur **direkte** Mitglieder der
+   > zugewiesenen Gruppe (keine verschachtelten Gruppen) und erfordert mindestens eine
+   > **Entra ID P1**-Lizenz (in einem Free-Tenant lassen sich keine Gruppen einer App zuweisen).
+   >
+   > Kontrolle: Im ausgestellten Token (z. B. über <https://jwt.ms>) muss der `groups`-Claim
+   > die Object-ID der Sicherheitsgruppe enthalten.
+
+   > Nachlesen:
+   > - [Gruppen-Claims & Group-Overage konfigurieren](https://learn.microsoft.com/en-us/security/zero-trust/develop/configure-tokens-group-claims-app-roles#group-overages)
+   >   – warum „Groups assigned to the application" das Overage-Problem vermeidet.
+   > - [Configure groups optional claims](https://learn.microsoft.com/en-us/entra/identity-platform/optional-claims#configure-groups-optional-claims)
+   >   – die genauen Portal-Schritte und Optionen.
 
 ---
 
@@ -78,6 +131,23 @@ Voraussetzung: `az login`.
     -ClientId       <AzureAd__ClientId> `
     -AllowedGroupId <AzureAd__AllowedGroupId> `
     -SharePointHost <tenant>.sharepoint.com
+```
+
+Die beiden GUIDs stammen aus den vorherigen Schritten:
+
+| Parameter | Quelle |
+|---|---|
+| `-ClientId` | **Application (client) ID** aus [Schritt 1](#1-entra-app-registrierung-api) (App-Registrierung `ManagePermissions API`). |
+| `-AllowedGroupId` | **Object Id** aus [Schritt 2](#2-sicherheitsgruppe) (Sicherheitsgruppe `ManagePermissions-Caller`). |
+
+Falls nicht notiert, per CLI nachschlagen (`-o tsv` liefert die nackte GUID):
+
+```powershell
+# ClientId der App-Registrierung (appId, NICHT die Object Id der App!)
+az ad app list --display-name "ManagePermissions API" --query "[0].appId" -o tsv
+
+# Object Id der Sicherheitsgruppe
+az ad group show --group "ManagePermissions-Caller" --query id -o tsv
 ```
 
 Das Skript legt Resource Group, Storage, Application Insights und die Function App
