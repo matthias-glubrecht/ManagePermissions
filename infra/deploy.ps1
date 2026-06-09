@@ -60,6 +60,14 @@ $ErrorActionPreference = 'Stop'
 function Write-Step { param($Msg) Write-Host "==> $Msg" -ForegroundColor Cyan }
 function Write-Ok { param($Msg) Write-Host "    [OK] $Msg" -ForegroundColor Green }
 
+# SharePointHost normalisieren: ein versehentlich mitgegebenes Schema (https://) und ein
+# Pfad/Trailing-Slash werden entfernt, sodass nur der reine Host übrig bleibt. Sonst
+# entsteht z. B. ein doppeltes Schema im CORS-Origin (https://https://...).
+$SharePointHost = ($SharePointHost -replace '^\s*https?://', '').Split('/')[0].Trim().TrimEnd('.')
+if ([string]::IsNullOrWhiteSpace($SharePointHost)) {
+    throw "Parameter -SharePointHost ist leer oder ungültig (erwartet z. B. contoso.sharepoint.com)."
+}
+
 # --- Azure-CLI-Check ---------------------------------------------------------
 Write-Step "Prüfe Azure CLI ..."
 $null = az account show 2>$null
