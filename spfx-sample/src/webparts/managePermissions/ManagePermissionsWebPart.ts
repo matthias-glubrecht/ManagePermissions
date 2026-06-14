@@ -16,14 +16,6 @@ export interface IManagePermissionsWebPartProps {
 
 const PERMISSION_LEVELS: string[] = ['Read', 'Contribute', 'Edit', 'Design', 'FullControl'];
 
-// Felder, deren Inhalt nach jeder Eingabe im localStorage gespeichert und beim
-// nächsten Laden wiederhergestellt wird (erspart wiederholtes Eintippen).
-const PERSIST_FIELDS: ReadonlyArray<{ id: string; key: string }> = [
-  { id: 'mp-webUrl', key: 'ManagePermissions.webUrl' },
-  { id: 'mp-listId', key: 'ManagePermissions.listId' },
-  { id: 'mp-upn', key: 'ManagePermissions.upn' }
-];
-
 export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IManagePermissionsWebPartProps> {
 
   public render(): void {
@@ -81,7 +73,6 @@ export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IMan
     </section>`;
 
     this._bindEvents();
-    this._restorePersistedFields();
     this._toggleGrantFields();
   }
 
@@ -100,30 +91,6 @@ export default class ManagePermissionsWebPart extends BaseClientSideWebPart<IMan
             this._setStatus(statusEl, 'error', error instanceof Error ? error.message : String(error));
           }
         });
-      });
-    }
-  }
-
-  // Stellt gespeicherte Feldinhalte wieder her und speichert sie bei jeder Eingabe.
-  // localStorage kann im privaten Browser-Modus eine Exception werfen → defensiv kapseln.
-  private _restorePersistedFields(): void {
-    for (const field of PERSIST_FIELDS) {
-      const input: HTMLInputElement | null = this.domElement.querySelector(`#${field.id}`);
-      if (!input) { continue; }
-
-      try {
-        const saved: string | null = window.localStorage.getItem(field.key);
-        if (saved !== null) { input.value = saved; }
-      } catch {
-        /* localStorage nicht verfügbar – Wiederherstellung überspringen */
-      }
-
-      input.addEventListener('input', () => {
-        try {
-          window.localStorage.setItem(field.key, input.value);
-        } catch {
-          /* localStorage nicht verfügbar – Speichern überspringen */
-        }
       });
     }
   }
